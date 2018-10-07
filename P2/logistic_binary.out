@@ -1,0 +1,4 @@
+Performing binary classification on synthetic data
+train acc: 0.997143, test acc: 1.000000
+Performing binary classification on binarized MNIST
+train acc: 0.844600, test acc: 0.809000
