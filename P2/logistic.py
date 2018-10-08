@@ -123,10 +123,11 @@ def multinomial_train(X, y, C,
     for i in range(N):
         y_one_hot[i][y[i]] = 1
 
-    prob_multiclass = softmax(np.matmul(X, w.T) + b)
-    w = w - 1/N * step_size * np.matmul((prob_multiclass - y_one_hot).T, X)
-    b = b - 1/N * (np.sum(prob_multiclass - y_one_hot))
-   
+    for i in range(0, max_iterations):
+        prob_multiclass = softmax(np.matmul(X, w.T) + b)
+        w = w - 1/N * step_size * np.matmul((prob_multiclass - y_one_hot).T, X)
+        b = b - 1/N * (np.sum(prob_multiclass - y_one_hot))
+
     assert w.shape == (C, D)
     assert b.shape == (C,)
     return w, b
@@ -157,6 +158,7 @@ def multinomial_predict(X, w, b):
 
     prob_multiclass = softmax(np.dot(X,np.transpose(w))) + b
     preds = np.argmax(prob_multiclass, axis = 1)
+
     assert preds.shape == (N,)
     return preds
 
