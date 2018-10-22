@@ -23,19 +23,14 @@ class DecisionStump(Classifier):
 		##################################################
 		# TODO: implement "predict"
 		##################################################
-		h = np.zeros(len(features))
+		h = []
 		for feature in features:
 			if feature[self.d] > self.b:
 				h_s_b_d = self.s
-				np.append(h, h_s_b_d)
+				#print(h_s_b_d)
+				h.append(h_s_b_d)
 			else:
 				h_s_b_d = -self.s 
-				np.append(h, h_s_b_d)
-		return h.tolist()
-		"""features = np.array(features)
-		feature = features[:, self.d]
-		feature = feature > self.b
-		feature = feature*2
-		feature = feature-1
-		feature = feature*self.s
-		return feature.tolist()"""
+				h.append(h_s_b_d)
+		return h
+		

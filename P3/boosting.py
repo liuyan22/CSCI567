@@ -34,9 +34,13 @@ class Boosting(Classifier):
 		########################################################
 		# TODO: implement "predict"
 		########################################################
-		h = sum([self.clfs_picked[i].predict(features)*self.betas[i] for i in range(self.T)])
-		H = np.sign(np.array(h))
-		return H.tolist()
+		features = np.array(features)
+		N = features.shape[0]
+		h = np.zeros((N))
+		for i in range(self.T):
+			h = h + np.array(self.clfs_picked[i].predict(features))*self.betas[i]
+		h = np.sign(h)
+		return h.tolist()
 		
 
 
@@ -62,21 +66,18 @@ class AdaBoost(Boosting):
 		############################################################
 		N = len(features)
 		w = np.ones(N)/N
-		for t in range(self.T):
-			indicator_func = []
-			for i in range(len(list(features))):
-				indicator_func_var = (labels != list(self.clfs)[i].predict(features))
-				indicator_func.append(indicator_func_var)
-			h_t = np.argmin(np.dot(w, indicator_func), axis=0)
-			e_t = np.dot(w, np.not_equal(labels, list(self.clfs)[h_t].predict(features)))
-			beta_t = 0.5*np.log(1-e_t)/e_t
-			indicator_func_2 = [x if x==1 else -1 for x in indicator_func]
-			w = np.multiply(w, np.exp([float(x)*beta_t for x in indicator_func_2]))
-			w = w/np.sum(w)
-
-		
-
-
+		for i in range(self.T):
+			errors = []
+			for i in range(len(list(self.clfs))):
+				errors.append(np.dot(w,np.not_equal(labels,list(self.clfs)[i].predict(features))))
+			min_error = min(errors)
+			h_t = errors.index(min_error)
+			self.clfs_picked.append(list(self.clfs)[h_t])
+			beta_t = 0.5*np.log((1-min_error)/min_error)
+			self.betas.append(beta_t)
+			indic_func_1 = [int(x) for x in np.not_equal(labels,list(self.clfs)[h_t].predict(features))]
+			indic_func_2 = [x if x==1 else -1 for x in indic_func_1]
+			w = np.multiply(w, np.exp([x*beta_t for x in indic_func_2]))/np.sum(w)
 		
 	def predict(self, features: List[List[float]]) -> List[int]:
 		return Boosting.predict(self, features)
